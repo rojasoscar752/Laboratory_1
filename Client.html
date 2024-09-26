@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cliente - Sistemas Distribuidos</title>
+</head>
+<body>
+  <h1>Cliente para el Frontend</h1>
+  <form id="tokenForm">
+    <label for="inputText">Introduce el texto:</label>
+    <textarea id="inputText" rows="4" cols="50" placeholder="Escribe tu texto aquí..."></textarea>
+    <br><br>
+    <button type="submit">Enviar</button>
+  </form>
+
+  <div id="response"></div>
+
+  <script>
+    const form = document.getElementById('tokenForm');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const inputText = document.getElementById('inputText').value;
+
+      // Enviamos el texto al frontend
+      const response = await fetch('http://localhost:9000/process-text', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: inputText }),
+      });
+
+      const result = await response.json();
+      document.getElementById('response').innerText = `Respuesta del servidor: ${JSON.stringify(result)}`;
+    });
+  </script>
+</body>
+</html>

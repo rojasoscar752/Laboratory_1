@@ -1,0 +1,8 @@
+# No subir node_modules
+node_modules/
+
+# No subir el archivo package-lock.json
+package-lock.json
+
+# no subir package.json:
+package.json
