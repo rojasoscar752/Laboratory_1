@@ -5,7 +5,7 @@ app.use(express.json());
 
 app.post('/count-tokens', (req, res) => {
     const text = req.body.text || '';
-    const tokens = text.split(/\s+/).length; 
+    const tokens = text.split(/\s+/).length;
     res.json({ tokens });
 });
 

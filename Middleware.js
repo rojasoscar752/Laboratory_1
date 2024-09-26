@@ -9,7 +9,7 @@ let lastReset = Date.now();
 app.use(express.json());
 
 app.post('/request', async (req, res) => {
-    
+
     if (Date.now() - lastReset > 60000) {
         requestCounts.fill(0);
         lastReset = Date.now();
@@ -22,7 +22,7 @@ app.post('/request', async (req, res) => {
         requestCounts[serverIndex]++;
         res.send(response.data);
     } catch (error) {
-       
+
         requestCounts[serverIndex] = Infinity;
         res.status(500).send('Todos los servidores caidos');
     }
