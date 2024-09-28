@@ -1,7 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const app = express();
-
+//implementacion para registro de servidores
 let registeredServers = [];
 
 app.use(express.json());
