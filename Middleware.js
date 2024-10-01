@@ -2,12 +2,8 @@ const express = require('express');
 const axios = require('axios');
 const app = express();
 
-
-const servers = process.env.SERVERS || 'http://localhost:4000'//,http://localhost:3002';
+const servers = process.env.SERVERS || 'http://localhost:4000,http://localhost:4001'; // Asegúrate de incluir ambos servidores
 const serverList = servers.split(',');
-
-//console.log(serverList); // ['http://localhost:3001', 'http://localhost:3002']
-
 
 let requestCounts = new Array(serverList.length).fill(0);
 let lastReset = Date.now();
@@ -15,7 +11,6 @@ let lastReset = Date.now();
 app.use(express.json());
 
 app.post('/request', async (req, res) => {
-    
     if (Date.now() - lastReset > 60000) {
         requestCounts.fill(0);
         lastReset = Date.now();
@@ -35,7 +30,6 @@ app.post('/request', async (req, res) => {
     }
 });
 
-
 app.get('/monitor', (req, res) => {
     res.json({
         servers: serverList,
@@ -43,6 +37,19 @@ app.get('/monitor', (req, res) => {
         lastReset: new Date(lastReset)
     });
 });
+
+// Función para verificar que el servidor de tokens esté activo
+async function checkTokenServer(serverUrl) {
+    try {
+        const response = await axios.get(`${serverUrl}/ping`);
+        console.log('Respuesta del servidor de tokens:', response.data);
+    } catch (error) {
+        console.error('Error al comunicarse con el servidor de tokens:', error.message);
+    }
+}
+
+// Verifica ambos servidores en la lista
+serverList.forEach(server => checkTokenServer(server));
 
 app.listen(5000, () => {
     console.log('Middleware corriendo en puerto 5000');
