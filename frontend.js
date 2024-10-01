@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(cors());
 
 // Ruta para procesar el texto
-app.post('/process-text', cors(), async (req, res) => {
+app.post('/process-text', async (req, res) => {
   try {
     const { text } = req.body;
 
@@ -27,6 +27,11 @@ app.post('/process-text', cors(), async (req, res) => {
     console.error('Error al comunicar con el middleware:', error.message);
     res.status(500).json({ error: 'No se pudo procesar la solicitud' });
   }
+});
+
+// Endpoint de health check
+app.get('/ping', (req, res) => {
+  res.json({ message: 'Frontend está activo' });
 });
 
 app.listen(PORT, () => {
