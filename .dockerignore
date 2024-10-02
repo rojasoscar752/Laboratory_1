@@ -1,0 +1,23 @@
+# Ignorar node_modules en la imagen Docker
+node_modules
+
+# Ignorar archivos y carpetas de logs
+logs
+
+# Ignorar archivos y carpetas de configuración local
+.env
+
+# Ignorar archivos de caché y de sistemas operativos
+.DS_Store
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Ignorar archivos de test y cobertura
+coverage
+*.test.js
+*.spec.js
+
+# Ignorar archivos y carpetas de desarrollo
+.vscode
+.idea

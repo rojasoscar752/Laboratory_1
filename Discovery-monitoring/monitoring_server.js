@@ -1,9 +1,10 @@
+require('dotenv').config();
 const axios = require('axios');
 
-const DISCOVERY_SERVER_URL = 'http://localhost:3000/servers';
-const FRONTEND_URL = 'http://localhost:9000/ping'; // URL del frontend
+const DISCOVERY_SERVER_URL = process.env.DISCOVERY_SERVER_URL || 'http://localhost:3000/servers';
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:9000';
+const MONITORING_INTERVAL = process.env.MONITORING_INTERVAL || 10000; // 10 seconds
 
-// Función para obtener la lista de servidores registrados
 async function getRegisteredServers() {
     try {
         const response = await axios.get(DISCOVERY_SERVER_URL);
@@ -15,22 +16,20 @@ async function getRegisteredServers() {
     }
 }
 
-// Función para hacer health check y medir el tiempo de respuesta
 async function healthCheck(serverUrl) {
     try {
         const startTime = Date.now();
-        await axios.get(serverUrl); // Aquí se llama al serverUrl
-        const latency = Date.now() - startTime; // Tiempo en milisegundos
-        return latency;
+        await axios.get(`${serverUrl}/ping`, { timeout: 5000 }); // 5 second timeout
+        return Date.now() - startTime; // Latency in milliseconds
     } catch (error) {
-        return null; // Indicar que el servidor está caído
+        console.error(`Error checking health of ${serverUrl}:`, error.message);
+        return null; // Indicate that the server is down
     }
 }
 
-// Función para iniciar el monitoreo
 async function monitor() {
     const servers = await getRegisteredServers();
-    servers.push(FRONTEND_URL); // Agregar el frontend a la lista de servidores a monitorear
+    servers.push(FRONTEND_URL);
     const responseTimes = {};
 
     servers.forEach(server => {
@@ -39,17 +38,24 @@ async function monitor() {
 
     setInterval(async () => {
         for (const server of servers) {
-            const latency = await healthCheck(`${server}/ping`); // Modificación aquí
+            const latency = await healthCheck(server);
             if (latency !== null) {
                 responseTimes[server].push(latency);
                 console.log(`Tiempo de respuesta de ${server}: ${latency} ms`);
             } else {
-                responseTimes[server].push(Infinity); // Servidor caído
+                responseTimes[server].push(Infinity);
                 console.log(`${server} está caído`);
             }
+
+            // Keep only the last 10 response times
+            if (responseTimes[server].length > 10) {
+                responseTimes[server].shift();
+            }
         }
-    }, 5000); // Intervalo de 5 segundos
+
+    }, MONITORING_INTERVAL);
 }
 
-// Iniciar el monitoreo
-monitor();
+monitor().catch(error => {
+    console.error('Error in monitoring process:', error);
+});

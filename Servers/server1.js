@@ -1,11 +1,17 @@
 const express = require('express');
 const axios = require('axios');
+const GPT3Tokenizer = require('gpt-3-encoder');
+
+
 const app = express();
 
 app.use(express.json());
 
+const PORT = process.env.PORT || 4000;
+const INSTANCE_ID = process.env.INSTANCE_ID || 'backend-instance';
+
+
 const DISCOVERY_SERVER_URL = 'http://localhost:3000/register';
-const SERVER_URL = 'http://localhost:4000';
 
 // Función para registrar el servidor
 async function registerServer() {
@@ -16,12 +22,20 @@ async function registerServer() {
         console.error('Error al registrar el servidor:', error.message);
     }
 }
-
+// Función para contar tokens
+const countTokens = (text) => {
+    const encoded = GPT3Tokenizer.encode(text);
+    return encoded.length;
+  };
+  
 // Endpoint para contar tokens
 app.post('/count-tokens', (req, res) => {
-    const text = req.body.text || '';
-    const tokens = text.split(/\s+/).length; 
-    res.json({ tokens });
+    const { text } = req.body;
+  if (!text) {
+    return res.status(400).json({ error: 'No text provided' });
+  }
+  const tokenCount = countTokens(text);
+  return res.json({ tokens: tokenCount });
 });
 
 // Nuevo endpoint para verificación
@@ -47,6 +61,6 @@ app.use((req, res, next) => {
 // Iniciar el registro
 registerServer();
 
-app.listen(4000, () => {
-    console.log('Instancia_server1 corriendo en puerto 4000');
+app.listen(PORT, () => {
+    console.log(`server1 corriendo en puerto ${PORT}`);
 });

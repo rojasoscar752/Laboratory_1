@@ -4,8 +4,8 @@ const axios = require('axios');
 const app = express();
 
 // Puerto fijo para el frontend
-const PORT = 9000;
-const MIDDLEWARE_URL = 'http://localhost:5000';  // URL del middleware
+const PORT = process.env.PORT || 9000;
+const MIDDLEWARE_URL = process.env.MIDDLEWARE_URL || 'http://localhost:5000';  // URL del middleware
 
 // Middleware para interpretar JSON
 app.use(express.json());
